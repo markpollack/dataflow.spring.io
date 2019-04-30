@@ -6,9 +6,11 @@ description: 'Concepts on Streaming pipelines'
 
 # What are streams
 
-A streaming data pipeline is typically made of independent event-driven streaming applications that connect using a `messaging middleware` or a `streaming platform`.
-The streaming pipeline can be `linear` or `non-linear` based on the data flow through the distributed applications of the streaming pipeline.
-As a streaming application developer, you can focus on developing your streaming application’s business logic while delegating the plumbing of the application to the messaging middleware/streaming platform using the Spring Cloud Stream framework.
+A streaming data pipeline is made up off independent event-driven streaming applications that connect using `messaging middleware`.
+The streaming data pipeline can be `linear` or `non-linear` based on the data flow through the independent applications that comprise the streaming data pipeline.
+As an application developer can focus on developing your application’s business logic while delegating the underlying messaging concerns to the Spring Cloud Stream framework. Control over the detailed settings of the underlying messaging middleware is done declaratively though application configuration.
+
+**TODO I think what is below can go into the stream development guide**
 
 ## Spring Cloud Stream
 

@@ -5,6 +5,6 @@ description: 'Getting Started with Stream Processing'
 summary: true
 ---
 
-# Stream Processing
+# Getting Started
 
-Introduction and getting started with simple stream pipelines using Spring Cloud Data Flow.
+This section shows how to create streaming data pipelines with existing stream applications and deploy them using Spring Cloud Data Flow.

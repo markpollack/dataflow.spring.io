@@ -6,41 +6,23 @@ description: 'Continuous Delivery of Streaming applications'
 
 # Introduction
 
-The applications composed in the event streaming pipeline can undergo changes autonomously, such as a feature toggle enablement or a bug fix. To avoid downtime from stream processing, it is essential to update or roll back such changes to the required applications without affecting the entire data pipeline.
+The applications composed in the streaming dta pipeline will often need to be changed.
+The change can be a new version of the application that fixes a bug or setting a different value of an application property.
+To avoid downtime from stream processing, we would like to do a rolling upgrade of just the applications in the stream that have changed.
+Furthermore, should the upgrade not be what is desired, a quick rollback to a previous version of the application should be easy to perform.
 
-Spring Cloud Data Flow provides native support for continuous delivery of event streaming applications. The application registry in Spring Cloud Data Flow lets you register multiple versions for the same event streaming application. With that, when updating an event streaming pipeline running in production, you have the option to switch to a specific version of the application(s) or change any of the configuration properties of the application(s) composed in the event streaming pipeline.
+Spring Cloud Data Flow provides support for continuous delivery of event streaming applications via the Skipper server.
 
-To demonstrate this, lets use some of the out of the box streaming applications.
-
-## Registering out of the box streaming applications using the Shell
-
-If you are using `RabbitMQ` as the messaging middleware and `maven` artifacts:
-
-```
-app import --uri  http://bit.ly/Einstein-SR2-stream-applications-rabbit-maven
-```
-
-If you are using `RabbitMQ` as the messaging middleware and `docker` images:
-
-```
-app import --uri  http://bit.ly/Einstein-SR2-stream-applications-rabbit-docker
-```
-
-If you are using `Kafka` as the Streaming platform and `maven` artifacts:
-
-```
-app import --uri  http://bit.ly/Einstein-SR2-stream-applications-kafka-maven
-```
-
-If you are using `Kafka` as the Streaming platform and `docker` images:
-
-```
-app import --uri  http://bit.ly/Einstein-SR2-stream-applications-kafka-docker
-```
+To demonstrate this, lets use some of the out of the box streaming applications that were already registered when installing Data Flow.
+We will showcase this functionality using the local platform, which uses Kafka by default when installing via docker compose.
 
 ## Stream create and deploy
 
 Create and deploy a stream that has source which ingests `http` events and the `transform` processor that applies a transformation logic and the `log` sink that shows the result of the transformed events.
+
+**TODO the port is there I presume because it for local server, but transform and log don't have server port's specified**
+
+**TODO do we want to show this in the UI, for this case the shell seems to get the point across very effectively.**
 
 ```
 stream create http-ingest --definition "http --server.port=9000 | transform --expression=payload.toUpperCase() | log" --deploy
@@ -84,12 +66,13 @@ From the log file of the `log` application, you will see the following:
 log-sink                                 :  SPRING
 ```
 
-The command `stream manifest http-events-transformer` shows all the applications for this event stream.
+The command `stream manifest http-events-transformer` shows all the applications and their properties for this version fo the the stream.
 
 ```
 stream manifest http-events-transformer
 ```
 
+**TODO highlight version line numbers**
 You can see the following result:
 
 ```
@@ -217,6 +200,10 @@ Once the stream update is completed, you can verify the `stream manifest` to see
 dataflow:>stream manifest http-events-transformer
 ```
 
+**TODO need to line highlight what has changed....maybe cut off the rest of the application properties...so noisy**
+
+**TODO showing the output of a jps command where the java process is running helps to really show that the app has been updated to a new version number.**
+
 ```
 "apiVersion": "skipper.spring.io/v1"
 "kind": "SpringCloudDeployerApplication"
@@ -306,14 +293,6 @@ In the `log` application's log file, you will now see:
 
 ```
 log-sink : SPRING
-```
-
-## Stream Delete
-
-You can delete the event stream as follows:
-
-```
-stream destroy http-events-transformer
 ```
 
 ### UI

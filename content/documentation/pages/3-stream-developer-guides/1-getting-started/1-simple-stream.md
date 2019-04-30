@@ -1,169 +1,191 @@
 ---
 path: 'stream-developer-guides/getting-started/simple-stream'
 title: 'Simple Stream'
-description: 'Create and Deploy a simple streaming pipeline '
+description: 'Create and deploy a data streaming pipeline using pre-built applications on your Local Machine'
 ---
 
 # Introduction
 
-Spring Cloud Data Flow provides a list of streaming applications that you can use out of the box and address some of the common streaming use cases.
-You can also extend from these out of the box applications or create your custom applications.
-All the out-of-the-box streaming applications are:
+Spring Cloud Data Flow provides over 70 pre-built streaming applications that you can use right away to implement common streaming use cases.
+In this guide we will use two of these applications to construct a simple data pipeline that produces data sent from an external http request and consumes that data by logging the payload to the terminal.
 
-- Available as Apache Maven artifacts or Docker images
-- RabbitMQ or the Apache Kafka binder implementation libraries in their classpath
-- Micrometer support for Prometheus and InfluxDB metrics
+Instructions for registering these pre-built applications with Data Flow are provided in the [Installation guide](%currentPath%/installation/).
 
-## Registering the out of the box applications
+## Stream DSL overview
 
-When registering the out of the box streaming applications, you can choose your artifact type `Maven` or `Docker` depending on the target platform.
-The `Local` development and the `CloudFoundry` platform support both `Maven` and `Docker` applications.
-The `Kubernetes` platform supports only `Docker` based applications.
+Streams can be created using a Domain Specific Language (DSL) using the Shell or the Dashboard as well as programmatically in Java.
+The Dashboard also lets you drag and drop applications onto a palate, and connect them visually.
+The Dashboard is bi-directional, so visual actions update the DSL and edits to the DSL update the view of the stream.
 
-You can also choose the messaging middleware or the streaming platform: either `RabbitMQ` or `Apache Kafka`.
+The DSL is modelled after the Unix pipes and filter syntax.
+As an example, the stream DSL `http | log` represents `http` application sending the data it received from a HTTP post to the messaging middleware.  
+The `log` application receives the message with that data from the messaging middleware and logs it to the terminal.
+Each name in the DSL is associated with an application via the application registration process.
+The applications are connected via a `|` symbol representing the messaging middleware that acts as the 'pipe' between the applications.
 
-### Registering applications using the Dashboard UI
+## Creating the Stream
 
-### Registering out of the box streaming applications using the Shell
+To create a stream:
 
-If you are using `RabbitMQ` as the messaging middleware and `maven` artifacts:
+1.  In the menu, click **Streams**.
 
-```
-app import --uri  http://bit.ly/Einstein-SR2-stream-applications-rabbit-maven
-```
+2.  Click the **Create Stream(s)** button.
 
-If you are using `RabbitMQ` as the messaging middleware and `docker` images:
+    The screen changes to the following image:
 
-```
-app import --uri  http://bit.ly/Einstein-SR2-stream-applications-rabbit-docker
-```
+    ![Create Stream Page](images/dataflow-stream-create-start.png)
 
-If you are using `Kafka` as the Streaming platform and `maven` artifacts:
+3.  In the text area, type `http | log`.
 
-```
-app import --uri  http://bit.ly/Einstein-SR2-stream-applications-kafka-maven
-```
+4.  Click **Create Stream**.
 
-If you are using `Kafka` as the Streaming platform and `docker` images:
+5.  Enter `http-ingest` for the stream name, as shown in the following
+    image:
 
-```
-app import --uri  http://bit.ly/Einstein-SR2-stream-applications-kafka-docker
-```
+    ![Creating a Stream](images/dataflow-stream-create.png)
 
-## Create the stream
+6.  Click "Create the stream" button.
 
-Spring Cloud Data Flow provides a Domain Specific Language (DSL) for creating a stream pipeline.
-The individual applications inside the streaming pipeline are connected via a `|` symbol.
-This pipe symbol is the logical representation of the messaging middleware or the streaming platform you would use to connect your applications in the streaming pipeline.
-For instance, the stream DSL `time | log` represents `time` application sending timestamp data to the messaging middleware and the `log` application receiving the timestamp data from the messaging middleware.
+    The Definitions page appears.
 
-### Streaming data pipeline configuration
+    ![Definitions Page](images/dataflow-stream-definitions-page.png)
 
-The streaming data pipeline can have configuration properties at:
+## Deploying a Stream
 
-- application level
-- deployer level
+Now that you have defined a stream, you can deploy it. To do so:
 
-The `application` properties are applied as the configuration for each individual application.
-The `application` properties can be set during the stream `creation` or the `deployment` time.
-When set during the stream `deployment`, these properties need to be prefixed with `app.<application-name>`
+1.  Click the play (deploy) button next to the "`http-ingest`" definition
+    that you created in the previous section.
 
-The `deployer` properties are specific to the target deployment platform `Local`, `CloudFoundry` or `Kubernetes`.
-The `deployer` properties can be set only when deploying the stream.
-These properties need to be prefixed with `deployer.<application-name>`
+        ![Initiate Deployment of a Stream](images/dataflow-stream-definition-deploy.png)
 
-Let's create a stream that ingests incoming HTTP events (Source) into a logging application (Sink).
+        The UI shows the available properties that can be applied to the
+        apps in the "`http-ingest`" stream. This example shown in the following
+        image uses the defaults:
 
-The stream DSL `http --server.port=9000 | log` can represent the streaming pipeline that has `http` source application ingesting http events into `log` sink application.
-The symbol `|` represents the messaging middleware or the streaming platform that connects the `http` application to `log` application.
-The property `server.port` is the `http` application properties set at the stream creation.
+        ![Deployment Page](images/dataflow-deploy-http-ingest.png)
 
-## Dashboard UI
+If you are using the local Data Flow Server, add the following deployment property to set the port to avoid a port collision.
 
-Screen shots here
-
-## Shell
-
-### Stream Creation
-
-To create the stream definition:
+**TODO show in UI**
 
 ```
-stream create http-ingest --definition "http --server.port=9000 | log"
+stream deploy http-ingest --properties app.http.server.port=9000
 ```
 
-### Stream Deployment
+2.  Click the **Deploy Stream** button.
 
-To the deploy the stream:
+    The UI returns to the Definitions page.
 
-```
-stream deploy http-ingest
-```
+    The stream is now in "`deploying`" status, and its status becomes
+    "`deployed`" when it is finished deploying. You may need to refresh
+    your browser to see the updated status.
 
-You can verify stream status from the `stream list` command.
-
-```
-stream list
-```
-
-```
-╔═══════════╤═════════════════════════════╤═════════════════════════════════════════╗
-║Stream Name│      Stream Definition      │                 Status                  ║
-╠═══════════╪═════════════════════════════╪═════════════════════════════════════════╣
-║http-ingest│http --server.port=9000 | log│The stream is being deployed             ║
-╚═══════════╧═════════════════════════════╧═════════════════════════════════════════╝
-```
-
-```
-stream list
-```
-
-```
-╔═══════════╤═════════════════════════════╤═════════════════════════════════════════╗
-║Stream Name│      Stream Definition      │                 Status                  ║
-╠═══════════╪═════════════════════════════╪═════════════════════════════════════════╣
-║http-ingest│http --server.port=9000 | log│The stream has been successfully deployed║
-╚═══════════╧═════════════════════════════╧═════════════════════════════════════════╝
-```
+## Sending data to the Stream
 
 Once the stream is deployed and running, you can now post some `HTTP` events:
 
 ```
-http post --data "Happy streaming" --target http://localhost:9000
-
+TODO: Use curl and show successful response
 ```
 
-If the HTTP POST is successfully sent, you will the response as follows:
+## Verifying output
 
-```
-> POST (text/plain) http://localhost:9000 Happy streaming
-> 202 ACCEPTED
-```
+### Local
 
-Now, you can check the `runtime apps` to see the running applications and get the `stdout` log file for the `log` sink application to see the consumed message from the `http` source application.
+Once a stream is deployed, you can view its logs. To do so:
 
-```
-runtime apps
-```
+1.  Click **Runtime** in the menu.
 
-Depending on the target runtime environment, you will have to access the `stdout` log file of the `log` application.
+2.  Click "`http-ingest.log`".
 
-#### Local Depoloyment
+3.  Copy the path in the "`stdout`" text box on the dashboard
 
-If the stream is deployed on `Local` development environment, the runtime applications show information about where each application is running in the local environment and their log files locations.
+4.  In another console window, type the following, replacing
+    `/path/from/stdout/textbox/in/dashboard` with the value you copied
+    in the previous step:
 
-**NOTE** If you are running SCDF on docker, to access the log files of the streaming applications:
+        $ docker exec -it skipper tail -f /path/from/stdout/textbox/in/dashboard
 
-`docker exec <stream-application-docker-container-id> tail -f <stream-application-log-file>`
-
-#### Cloud Foundry
-
-#### Kubernetes
-
-### Verification
-
-Once you are able to access the `stdout` file of the `log` application, you will see the message posted from the `http` source application in there:
+    The output of the log sink appears in the new window. You will see output as shown below.
+    When you have seen enough output from sending http requests, press Ctrl+C to end the `tail` command.
 
 ```
 log-sink                                 : Happy streaming
 ```
+
+### Cloud Foundry
+
+TODO
+
+### Kubernetes
+
+TODO
+
+## Deleting a Stream
+
+Now you can delete the stream you created. To do so:
+
+1.  Click **Streams** in the menu.
+
+2.  Click the down chevron on the "`http-ingest`" row.
+
+3.  Click the **Destroy Stream**.
+
+4.  When prompted for confirmation, click **Destroy
+    Stream Definition(s)**.
+
+## Updating and Rolling back a Stream
+
+This information can be found in the [Continuous Delivery Basics Guide](%currentpath%/stream-developer-guides/continuous-delivery/cd-basics)
+
+## Stream configuration
+
+**TODO: THIS FEELS LIKE IT SHOULD BE IN ANOTHER SECTION**
+
+The streaming data pipeline can be configured in two distinct ways.
+
+The first is at the stream definition and the second is when deploying the stream.
+
+As an example of configuring an application's property at the stream definition level, instead of using `http | log` as the stream definition, you can add an option that sets the logging level to `WARN` instead of the default `INFO`.
+This is done by adding a `--level` option in the stream DSL, much as you would do with unix commands
+
+```
+http | log --level=WARN
+```
+
+When creating a stream definition in the dashboard, the available application options are presented to you.  
+When creating a stream definition in the shell, hitting the `TAB` key will provide auto-complete suggestions.
+
+You can also set application properties at deployment time.
+When deploying a stream in the dashboard, you can select the application properties using the 'write' icon as shown below
+
+    ![Deploy Stream Page](images/dataflow-stream-deployment-app-props.png)
+
+When deploying a stream in the shell, the properties are passed with the prefix `app.<application-name>`.
+For example:
+
+```
+stream deploy http-ingest --properties "app.http.server.port=9000"
+```
+
+It is more common to set platform specific properties when deploying a stream.
+These are also available in the 'Deploy Stream Definition' dashboard as shown the previous picture.
+There are two categories of platform properties, those that are common across all platforms (memory, CPU, disk, and initial count) and those that are specific to the platform.
+
+When using the shell, the common platform deployment properties need to be prefixed with `deployer.<application-name>`.
+For example:
+
+```
+stream deploy http-ingest --properties "deployer.log.memory=2048m"
+```
+
+To set specific platform properties, use the prefix `deployer.<application-name>.<platform-name>` where platform name is `local`, `cloudfoundry`, or `kubernetes`
+
+For example:
+
+```
+stream deploy http-ingest --properties "deployer.log.local.javaOpts=-Xmx2048m -Dtest=foo
+```
+
+**TODO: Need a reference to available properties, perhaps point to the reference guide**

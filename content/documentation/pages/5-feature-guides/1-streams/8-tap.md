@@ -4,6 +4,8 @@ title: 'Tapping a Stream'
 description: 'Creating a Stream from an application in another stream..'
 ---
 
+**TODO Review**
+
 In Spring Cloud Stream terms, a named destination is a specific destination name in the messaging middleware or the streaming platform.
 It could be an `exchange` in RabbitMQ or a `topic` in Apache Kafka.
 In Spring Cloud Data Flow, the named destination can either be treated as a direct `source` or `sink` based on whether it acts as a publisher or a consumer.
@@ -29,7 +31,6 @@ The stream DSL in this case would look like this:
 ```
 
 Now, the Kafka topic `user-click-events` acts as a producer for the `jdbc` application.
-
 
 It is a common use case to construct parallel event streaming pipelines by forking the same data from the event publishers of the primary stream processing pipeline.
 For the following primary stream:
@@ -61,4 +62,3 @@ filtered-http-events=:mainstream.filter > mongodb
 In Spring Cloud Data Flow, the name of the stream is unique.
 Hence, it is used as the consumer group name for the application that consumes from the given Kafka topic.
 This allows for multiple event streaming pipelines to get a copy of the same data instead of competing for messages.
-
