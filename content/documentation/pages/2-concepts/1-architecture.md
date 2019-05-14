@@ -27,18 +27,18 @@ The Data Flow Server is responsible for
 - Validating and persisting Stream, Task, and Batch Job definitions.
 - Registering artifacts such as .jar and docker images to names used in the DSL.
 - Deploying Batch Jobs to one or more platforms.
-- Creating Skipper packages Delegating Stream Deployment to Skipper.
-- Add properties to Stream applications that configure messaging inputs and outputs, monitoring labels.
+- Delegating Job scheduling to a platform.
+- Delegating Stream Deployment to Skipper.
+- Add configuration properties to Streams that configure messaging inputs and outputs.
 - Audit actions such Stream create, deploy, undeploy and Batch create, launch, delete.
 - Querying detailed Task and Batch Job execution history.
-- Delegating Job scheduling to a platform.
 - Providing Stream and Batch Job DSL tab-completion features.
 
 The Skipper Server is responsible for:
 
 - Deploying Streams to one or more platforms.
-- Upgrading and rolling back deployed applications on one or more platforms using a State Machine based blue/green update strategy.
-- Store the history of each application's manifest file that represents the final description of what has been deployed.
+- Upgrading and rolling back Stream on one or more platforms using a State Machine based blue/green update strategy.
+- Store the history of each Stream's manifest file that represents the final description of what applications have been deployed.
 
 ## Tooling
 
